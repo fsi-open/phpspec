@@ -22,6 +22,8 @@ use PhpSpec\Exception\Example\FailureException;
 use PhpSpec\Exception\Example\NotEqualException;
 use PhpSpec\Exception\Fracture\MethodNotFoundException;
 
+use const PHP_VERSION_ID;
+
 final class ThrowMatcher implements Matcher
 {
     private static array $ignoredProperties = [
@@ -99,7 +101,9 @@ final class ThrowMatcher implements Matcher
                     continue;
                 }
 
-                $property->setAccessible(true);
+                if (PHP_VERSION_ID < 80500) {
+                    $property->setAccessible(true);
+                }
 
                 /** @psalm-suppress RedundantCondition */
                 if (method_exists($property, 'isInitialized')) {
@@ -158,7 +162,9 @@ final class ThrowMatcher implements Matcher
                         continue;
                     }
 
-                    $property->setAccessible(true);
+                    if (PHP_VERSION_ID < 80500) {
+                        $property->setAccessible(true);
+                    }
 
                     /** @psalm-suppress RedundantCondition */
                     if (method_exists($property, 'isInitialized')) {
@@ -217,7 +223,7 @@ final class ThrowMatcher implements Matcher
                 $arguments = $arguments[1] ?? array();
                 $callable = array($subject, $methodName);
 
-                list($class, $methodName) = array($subject, $methodName);
+                [$class, $methodName] = array($subject, $methodName);
                 if (!method_exists($class, $methodName) && !method_exists($class, '__call')) {
                     throw new MethodNotFoundException(
                         sprintf('Method %s::%s not found.', \get_class($class), $methodName),
